@@ -14,6 +14,11 @@ from argparse import ArgumentParser
 # import vendor files
 iparentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
 sys.path.insert(0,os.path.join(iparentdir, 'vendor')) 
+# for pkgutil
+# then you can debug this program with the following command
+# $ python main.py -f a.pac -p "SOCKS5 127.0.0.1:1080" --via-proxy "SOCKS5 127.0.0.1:1080"
+sys.path.append(iparentdir) 
+
 import socks
 from socksipyhandler import SocksiPyHandler
 
@@ -189,8 +194,6 @@ def main():
             # Yeah, it's an URL, try to download it
             print 'Downloading user rules file from %s' % args.user_rule
             user_rule = opener.open(args.user_rule, timeout=10).read()
-
-    sys.exit(0)
 
     content = decode_gfwlist(content)
     domains = parse_gfwlist(content, user_rule)
