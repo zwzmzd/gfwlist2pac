@@ -6,6 +6,7 @@ import os
 import sys
 import urlparse
 import json
+import datetime
 import logging
 import urllib2
 from argparse import ArgumentParser
@@ -30,11 +31,15 @@ def parse_args():
                         help='path to output pac', metavar='PAC')
     parser.add_argument('-p', '--proxy', dest='proxy', required=True,
                         help='the proxy parameter in the pac file, '
-                             'for example, "SOCKS5 127.0.0.1:1080;"',
+                             'for example, "SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080"',
                         metavar='PROXY')
     parser.add_argument('--user-rule', dest='user_rule',
                         help='user rule file, which will be appended to'
                              ' gfwlist')
+    parser.add_argument('--via-proxy', dest='via_proxy', 
+                        help='fetch gfwlist via proxy, '
+                             'for example, "SOCKS5 127.0.0.1:1080" or "HTTP 127.0.0.1:8080"'
+                        , metavar='PROXY')
     return parser.parse_args()
 
 
@@ -131,15 +136,42 @@ def generate_pac(domains, proxy):
     domains_dict = {}
     for domain in domains:
         domains_dict[domain] = 1
+    proxy_content = proxy_content.replace('__GENTIME__', str(datetime.datetime.now()))
     proxy_content = proxy_content.replace('__PROXY__', json.dumps(str(proxy)))
     proxy_content = proxy_content.replace('__DOMAINS__',
                                           json.dumps(domains_dict, indent=2))
     return proxy_content
 
+def get_urlopener_with_proxy(arg):
+    if arg:
+        try:
+            protocol, hostport = arg.split(' ')
+            protocol = protocol.lower()
+            host, port = hostport.split(':')
+            if protocol == 'socks5':
+                proxy_handler = SocksiPyHandler(socks.PROXY_TYPE_SOCKS5, host, int(port))
+            elif protocol == 'http':
+                proxy_handler = SocksiPyHandler(socks.PROXY_TYPE_HTTP, host, int(port))
+            elif protocol == 'socks4'\
+                    or protocol == 'socks':
+                proxy_handler = SocksiPyHandler(socks.PROXY_TYPE_SOCKS4, host, int(port))
+            opener = urllib2.build_opener(proxy_handler)
+        except Exception, e:
+            print e
+            sys.stderr.write('--via-proxy parameter is not correct\n')
+            opener = None
+    else:
+        opener = urllib2.build_opener()
+
+    return opener
 
 def main():
-    opener = urllib2.build_opener(SocksiPyHandler(socks.PROXY_TYPE_SOCKS5, 'localhost', 1080))
     args = parse_args()
+
+    opener = get_urlopener_with_proxy(args.via_proxy)
+    if opener is None:
+        sys.exit(-1)
+
     user_rule = None
     if (args.input):
         with open(args.input, 'rb') as f:
@@ -157,6 +189,8 @@ def main():
             # Yeah, it's an URL, try to download it
             print 'Downloading user rules file from %s' % args.user_rule
             user_rule = opener.open(args.user_rule, timeout=10).read()
+
+    sys.exit(0)
 
     content = decode_gfwlist(content)
     domains = parse_gfwlist(content, user_rule)
