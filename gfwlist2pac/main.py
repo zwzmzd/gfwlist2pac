@@ -2,16 +2,24 @@
 # -*- coding: utf-8 -*-
 
 import pkgutil
+import os
+import sys
 import urlparse
 import json
 import logging
 import urllib2
 from argparse import ArgumentParser
 
+# import vendor files
+iparentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
+sys.path.insert(0,os.path.join(iparentdir, 'vendor')) 
+import socks
+from socksipyhandler import SocksiPyHandler
+
 __all__ = ['main']
 
 
-gfwlist_url = 'https://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt'
+gfwlist_url = 'http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt'
 
 
 def parse_args():
@@ -130,6 +138,7 @@ def generate_pac(domains, proxy):
 
 
 def main():
+    opener = urllib2.build_opener(SocksiPyHandler(socks.PROXY_TYPE_SOCKS5, 'localhost', 1080))
     args = parse_args()
     user_rule = None
     if (args.input):
@@ -137,7 +146,7 @@ def main():
             content = f.read()
     else:
         print 'Downloading gfwlist from %s' % gfwlist_url
-        content = urllib2.urlopen(gfwlist_url, timeout=10).read()
+        content = opener.open(gfwlist_url, timeout=10).read()
     if args.user_rule:
         userrule_parts = urlparse.urlsplit(args.user_rule)
         if not userrule_parts.scheme or not userrule_parts.netloc:
@@ -147,7 +156,7 @@ def main():
         else:
             # Yeah, it's an URL, try to download it
             print 'Downloading user rules file from %s' % args.user_rule
-            user_rule = urllib2.urlopen(args.user_rule, timeout=10).read()
+            user_rule = opener.open(args.user_rule, timeout=10).read()
 
     content = decode_gfwlist(content)
     domains = parse_gfwlist(content, user_rule)
