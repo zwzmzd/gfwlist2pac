@@ -12,12 +12,13 @@ import urllib2
 from argparse import ArgumentParser
 
 # import vendor files
-cdir = os.path.dirname(os.path.abspath(__file__))  
-sys.path.insert(0, os.path.join(cdir, 'vendor')) 
+cdir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(cdir, 'vendor'))
 # for pkgutil
-# then you can debug this program with the following command
-# $ python main.py -f a.pac -p "SOCKS5 127.0.0.1:1080" --via-proxy "SOCKS5 127.0.0.1:1080"
-sys.path.append(os.path.dirname(cdir)) 
+# then you can debug this program with the following command:
+# python main.py -f a.pac -p "SOCKS5 127.0.0.1:1080"
+#       --via-proxy "SOCKS5 127.0.0.1:1080"
+sys.path.append(os.path.dirname(cdir))
 
 import socks
 from socksipyhandler import SocksiPyHandler
@@ -36,15 +37,17 @@ def parse_args():
                         help='path to output pac', metavar='PAC')
     parser.add_argument('-p', '--proxy', dest='proxy', required=True,
                         help='the proxy parameter in the pac file, '
-                             'for example, "SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080"',
+                             'for example, '
+                             '"SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080"',
                         metavar='PROXY')
     parser.add_argument('--user-rule', dest='user_rule',
                         help='user rule file, which will be appended to'
                              ' gfwlist')
-    parser.add_argument('--via-proxy', dest='via_proxy', 
+    parser.add_argument('--via-proxy', dest='via_proxy',
                         help='fetch gfwlist via proxy, '
-                             'for example, "SOCKS5 127.0.0.1:1080" or "HTTP 127.0.0.1:8080"'
-                        , metavar='PROXY')
+                             'for example, "SOCKS5 127.0.0.1:1080" '
+                             'or "HTTP 127.0.0.1:8080"',
+                        metavar='PROXY')
     return parser.parse_args()
 
 
@@ -141,11 +144,13 @@ def generate_pac(domains, proxy):
     domains_dict = {}
     for domain in domains:
         domains_dict[domain] = 1
-    proxy_content = proxy_content.replace('__GENTIME__', str(datetime.datetime.now()))
+    proxy_content = proxy_content.replace('__GENTIME__',
+                                          str(datetime.datetime.now()))
     proxy_content = proxy_content.replace('__PROXY__', json.dumps(str(proxy)))
     proxy_content = proxy_content.replace('__DOMAINS__',
                                           json.dumps(domains_dict, indent=2))
     return proxy_content
+
 
 def get_urlopener_with_proxy(arg):
     if arg:
@@ -154,12 +159,21 @@ def get_urlopener_with_proxy(arg):
             protocol = protocol.lower()
             host, port = hostport.split(':')
             if protocol == 'socks5':
-                proxy_handler = SocksiPyHandler(socks.PROXY_TYPE_SOCKS5, host, int(port))
+                proxy_handler = SocksiPyHandler(
+                    socks.PROXY_TYPE_SOCKS5,
+                    host,
+                    int(port))
             elif protocol == 'http':
-                proxy_handler = SocksiPyHandler(socks.PROXY_TYPE_HTTP, host, int(port))
+                proxy_handler = SocksiPyHandler(
+                    socks.PROXY_TYPE_HTTP,
+                    host,
+                    int(port))
             elif protocol == 'socks4'\
                     or protocol == 'socks':
-                proxy_handler = SocksiPyHandler(socks.PROXY_TYPE_SOCKS4, host, int(port))
+                proxy_handler = SocksiPyHandler(
+                    socks.PROXY_TYPE_SOCKS4,
+                    host,
+                    int(port))
             opener = urllib2.build_opener(proxy_handler)
         except Exception, e:
             print e
@@ -169,6 +183,7 @@ def get_urlopener_with_proxy(arg):
         opener = urllib2.build_opener()
 
     return opener
+
 
 def main():
     args = parse_args()
