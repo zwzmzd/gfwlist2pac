@@ -28,4 +28,4 @@ function FindProxyForURL(url, host) {
         }
         pos = host.lastIndexOf('.', pos - 1);
     }
-
+}
