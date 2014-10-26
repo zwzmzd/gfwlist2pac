@@ -12,12 +12,12 @@ import urllib2
 from argparse import ArgumentParser
 
 # import vendor files
-iparentdir = os.path.dirname(os.path.abspath(__file__))  
-sys.path.insert(0, os.path.join(iparentdir, 'vendor')) 
+cdir = os.path.dirname(os.path.abspath(__file__))  
+sys.path.insert(0, os.path.join(cdir, 'vendor')) 
 # for pkgutil
 # then you can debug this program with the following command
 # $ python main.py -f a.pac -p "SOCKS5 127.0.0.1:1080" --via-proxy "SOCKS5 127.0.0.1:1080"
-sys.path.append(iparentdir) 
+sys.path.append(os.path.dirname(cdir)) 
 
 import socks
 from socksipyhandler import SocksiPyHandler
