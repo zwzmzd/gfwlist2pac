@@ -36,7 +36,7 @@ class SocksiPyHandler(urllib2.HTTPHandler):
         return self.do_open(build, req)
 
 if __name__ == "__main__":
-    gfwlist_url = 'http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt'
+    gfwlist_url = 'https://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt'
     opener = urllib2.build_opener(SocksiPyHandler(socks.PROXY_TYPE_SOCKS5, 'localhost', 1080))
     #print opener.open('http://ipinfo.io/').read()
     print opener.open(gfwlist_url).read()
