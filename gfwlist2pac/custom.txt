@@ -2,7 +2,12 @@ android.com
 cloudflare.com
 opengl.org
 g-truc.net
-stackoverflow.com
 google.com.hk
 google.com.cn
+google.co.jp
+google.com.sg
 google.cn
+sstatic.net
+stackexchange.com
+stackoverflow.com
+cloudfront.net
