@@ -26,7 +26,7 @@ from socksipyhandler import SocksiPyHandler
 __all__ = ['main']
 
 
-gfwlist_url = 'http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt'
+gfwlist_url = 'https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt'
 
 
 def parse_args():

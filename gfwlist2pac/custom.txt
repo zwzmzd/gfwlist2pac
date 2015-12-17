@@ -11,3 +11,4 @@ sstatic.net
 stackexchange.com
 stackoverflow.com
 cloudfront.net
+amazonaws.com
