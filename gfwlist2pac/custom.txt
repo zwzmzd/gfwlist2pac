@@ -12,3 +12,5 @@ stackexchange.com
 stackoverflow.com
 cloudfront.net
 amazonaws.com
+akamaihd.net
+gist.github.com
